@@ -11,23 +11,23 @@ interface FaqItem {
 const faqs: FaqItem[] = [
   {
     question: "How accurate is this loan calculator?",
-    answer: "It uses the standard reducing-balance <span class='inr-text'>EMI</span><span class='usd-text hidden'>amortization</span> formula widely used by major lenders worldwide. Your result will closely match most banks, provided the principal, interest rate, and <span class='inr-text'>tenure</span><span class='usd-text hidden'>loan term</span> match exactly. <br><br><em>Note: Calculations are illustrative and do not account for floating-rate adjustments or <span class='inr-text'>GST/processing fees</span><span class='usd-text hidden'>taxes/origination fees</span>.</em>"
+    answer: "<strong>Very accurate for fixed-rate loans.</strong> It uses the standard reducing-balance amortization formula used by major lenders globally. Results match most bank statements precisely when the principal, rate, and <span class='inr-text'>tenure</span><span class='usd-text hidden'>loan term</span> are correct. <em>Calculations do not account for floating-rate changes, lender-specific fees, or insurance charges.</em>"
   },
   {
     question: "What is an amortization schedule?",
-    answer: "<strong>An amortization schedule</strong> is a complete table of periodic loan payments, showing the amount of principal and the amount of interest that comprise each payment until the loan is paid off at the end of its term."
+    answer: "<strong>An amortization schedule</strong> is a complete table of every loan payment, showing how much goes to principal and how much goes to interest each month. Early payments are mostly interest; later payments are mostly principal. It helps you see your exact payoff date and total cost."
   },
   {
-    question: "Should I choose a shorter or longer <span class='inr-text'>tenure</span><span class='usd-text hidden'>loan term</span>?",
-    answer: "A shorter <span class='inr-text'>tenure</span><span class='usd-text hidden'>term</span> results in a higher <span class='inr-text'>EMI</span><span class='usd-text hidden'>monthly payment</span>, but much less total interest paid over the life of the loan. A longer <span class='inr-text'>tenure</span><span class='usd-text hidden'>term</span> provides easier monthly payments, but significantly more total interest. A common rule of thumb is to keep your <span class='inr-text'>EMI</span><span class='usd-text hidden'>monthly payment</span> under 30% of your take-home pay."
+    question: "Should I choose a shorter or longer <span class='inr-text'>loan tenure</span><span class='usd-text hidden'>loan term</span>?",
+    answer: "<strong>Shorter <span class='inr-text'>tenure</span><span class='usd-text hidden'>term</span>:</strong> Higher <span class='inr-text'>EMI</span><span class='usd-text hidden'>monthly payment</span>, but much less total interest. <strong>Longer <span class='inr-text'>tenure</span><span class='usd-text hidden'>term</span>:</strong> Lower payments, but significantly more interest paid overall. A common guideline is to keep your <span class='inr-text'>EMI</span><span class='usd-text hidden'>monthly payment</span> below 30% of your take-home income."
   },
   {
-    question: "What is the difference between reducing balance and flat rate loans?",
-    answer: "In a <strong>reducing balance loan</strong>, interest is charged only on the remaining principal each month. In a <strong>flat rate loan</strong>, interest is charged on the original loan amount for the full term. A flat rate of 10% is roughly equivalent to a 17–18% reducing balance rate, making flat rate loans significantly more expensive."
+    question: "What is the difference between reducing balance and flat rate?",
+    answer: "<strong>Reducing balance:</strong> Interest is calculated on the remaining principal each month — the standard used by most banks globally. <strong>Flat rate:</strong> Interest is calculated on the original loan amount for the full <span class='inr-text'>tenure</span><span class='usd-text hidden'>term</span>. A flat rate of 10% is equivalent to roughly 17–18% reducing balance — significantly more expensive. <span class='inr-text'>Flat rates are common with some NBFCs and two-wheeler financiers.</span><span class='usd-text hidden'>Flat rates sometimes appear in personal and vehicle loans from non-bank lenders.</span>"
   },
   {
-    question: "Should I make prepayments on my loan?",
-    answer: "<span class='inr-text'>Almost always yes for home loans (most banks allow penalty-free prepayments after 1 year under RBI rules). For personal and car loans, check your lender's prepayment penalty — it's often 2–5% of the outstanding amount.</span><span class='usd-text hidden'>Almost always yes for mortgages and home loans, provided there are no prepayment penalties. For personal and auto loans, check if your lender charges a prepayment penalty.</span> Making extra payments reduces your principal faster, saving you significant interest."
+    question: "Should I make prepayments?",
+    answer: "<strong>Generally yes</strong> — each extra payment directly reduces your principal, cutting total interest. <span class='inr-text'>For home loans, most banks allow penalty-free prepayments as per RBI guidelines. For personal and car loans, check for prepayment charges (typically 2–5% of the outstanding balance).</span><span class='usd-text hidden'>For mortgages, confirm there is no prepayment penalty first. For auto and personal loans, check your lender's terms — a penalty can offset the interest savings.</span>"
   }
 ];
 ---

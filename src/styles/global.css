@@ -203,6 +203,10 @@ html[data-theme="dark"] .toggle-btn-sm.active {
   gap: 8px;
 }
 
+.loan-type-btn.hidden {
+  display: none !important;
+}
+
 .loan-type-btn:hover {
   border-color: var(--color-primary);
   color: var(--color-text);
