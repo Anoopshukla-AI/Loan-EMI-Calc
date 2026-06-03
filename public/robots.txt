@@ -1,0 +1,8 @@
+# robots.txt — EMI Calculator
+# Allow all search engine bots to crawl all pages
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://emicalculator.example.com/sitemap-index.xml

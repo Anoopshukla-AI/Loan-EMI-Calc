@@ -1,0 +1,96 @@
+---
+import SeoHead from '../components/SeoHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogType?: string;
+  ogUrl?: string;
+  ogImage?: string;
+  canonical?: string;
+}
+
+const props = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <SeoHead {...props} />
+
+    <!-- GA4: Replace G-XXXXXXXXXX with your Measurement ID -->
+    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script> -->
+
+    <!-- AdSense: Paste your AdSense <script> tag here -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+    <slot name="head" />
+  </head>
+  <body>
+    <Header />
+    <slot />
+    <Footer />
+
+    <!-- Dark mode script: runs immediately to prevent FOUC -->
+    <script is:inline>
+      (function() {
+        // Determine theme: check system preference (no localStorage — sandboxed iframes block it)
+        var theme = 'light';
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          theme = 'dark';
+        }
+        // Allow in-memory override
+        if (window.__emiTheme) {
+          theme = window.__emiTheme;
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+
+        // Update toggle icons
+        function updateIcons(t) {
+          var sun = document.getElementById('icon-sun');
+          var moon = document.getElementById('icon-moon');
+          if (sun && moon) {
+            sun.style.display = t === 'dark' ? 'block' : 'none';
+            moon.style.display = t === 'dark' ? 'none' : 'block';
+          }
+        }
+        updateIcons(theme);
+
+        // Toggle handler
+        document.addEventListener('DOMContentLoaded', function() {
+          var btn = document.getElementById('theme-toggle');
+          if (btn) {
+            btn.addEventListener('click', function() {
+              var current = document.documentElement.getAttribute('data-theme');
+              var next = current === 'dark' ? 'light' : 'dark';
+              document.documentElement.setAttribute('data-theme', next);
+              window.__emiTheme = next;
+              updateIcons(next);
+            });
+          }
+          updateIcons(document.documentElement.getAttribute('data-theme') || 'light');
+        });
+
+        // Listen for OS changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+          if (!window.__emiTheme) {
+            var t = e.matches ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', t);
+            updateIcons(t);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

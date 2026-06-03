@@ -1,0 +1,840 @@
+---
+// EmiCalculator — Full interactive loan decision workspace
+// Loan presets, affordability gauge, scenario comparison, prepayment simulator, year-grouped amortization
+---
+
+<section id="emi-calculator" class="animate-fade-in-up">
+  <!-- Loan Type Selector -->
+  <div class="flex flex-wrap gap-3 mb-6" role="radiogroup" aria-label="Loan type">
+    <button type="button" id="preset-home" class="loan-type-btn active" role="radio" aria-checked="true" data-type="home">
+      <span>🏠</span> Home Loan
+    </button>
+    <button type="button" id="preset-car" class="loan-type-btn" role="radio" aria-checked="false" data-type="car">
+      <span>🚗</span> Car Loan
+    </button>
+    <button type="button" id="preset-personal" class="loan-type-btn" role="radio" aria-checked="false" data-type="personal">
+      <span>💳</span> Personal Loan
+    </button>
+  </div>
+
+  <!-- 2-Column Calculator -->
+  <div class="calc-grid">
+    <!-- LEFT: Inputs -->
+    <div class="surface-card p-4 sm:p-6">
+      <!-- Currency + Method row -->
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div class="flex items-center rounded-lg overflow-hidden border border-default" role="radiogroup" aria-label="Currency">
+          <button type="button" id="btn-inr" class="toggle-btn active px-3 py-2 text-sm font-medium" role="radio" aria-checked="true" style="min-height:44px;">₹ INR</button>
+          <button type="button" id="btn-usd" class="toggle-btn px-3 py-2 text-sm font-medium" role="radio" aria-checked="false" style="min-height:44px;">$ USD</button>
+        </div>
+        <div class="flex items-center rounded-lg overflow-hidden border border-default" role="radiogroup" aria-label="EMI calculation method">
+          <button type="button" id="btn-reducing" class="toggle-btn active px-3 py-2 text-sm font-medium" role="radio" aria-checked="true" style="min-height:44px;">Reducing</button>
+          <button type="button" id="btn-flat" class="toggle-btn px-3 py-2 text-sm font-medium" role="radio" aria-checked="false" style="min-height:44px;">Flat Rate</button>
+        </div>
+      </div>
+
+      <!-- Core Inputs -->
+      <div class="space-y-4">
+        <!-- Loan Amount -->
+        <div>
+          <label for="principal" class="block text-sm font-medium mb-1">Loan Amount (<span id="currency-symbol">₹</span>)</label>
+          <input type="number" id="principal" min="10000" max="100000000" step="10000" value="5000000" class="w-full px-3 py-2.5 rounded-lg border border-default text-base" style="min-height:48px;" inputmode="numeric" aria-describedby="principal-help principal-error" />
+          <p id="principal-help" class="helper-text">Total amount you plan to borrow (after down payment)</p>
+          <p id="principal-error" class="text-xs mt-1" style="color:var(--color-error);display:none;"></p>
+        </div>
+
+        <!-- Interest Rate -->
+        <div>
+          <label for="rate" class="block text-sm font-medium mb-1">Interest Rate (% per year)</label>
+          <input type="number" id="rate" min="0.1" max="36" step="0.1" value="8.5" class="w-full px-3 py-2.5 rounded-lg border border-default text-base" style="min-height:48px;" inputmode="decimal" aria-describedby="rate-help rate-error" />
+          <input type="range" id="rate-slider" min="0.1" max="30" step="0.1" value="8.5" class="mt-2" aria-label="Interest rate slider" />
+          <p id="rate-help" class="helper-text">Most home loans: 8–10%. Car: 9–12%. Personal: 11–18%.</p>
+          <p id="rate-error" class="text-xs mt-1" style="color:var(--color-error);display:none;"></p>
+        </div>
+
+        <!-- Tenure -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label for="tenure" class="text-sm font-medium">Loan Tenure</label>
+            <div class="flex items-center rounded-md overflow-hidden border border-default" role="radiogroup" aria-label="Tenure unit">
+              <button type="button" id="btn-years" class="toggle-btn-sm active px-2.5 py-1 text-xs font-medium" role="radio" aria-checked="true" style="min-height:32px;">Years</button>
+              <button type="button" id="btn-months" class="toggle-btn-sm px-2.5 py-1 text-xs font-medium" role="radio" aria-checked="false" style="min-height:32px;">Months</button>
+            </div>
+          </div>
+          <input type="number" id="tenure" min="1" max="30" step="1" value="20" class="w-full px-3 py-2.5 rounded-lg border border-default text-base" style="min-height:48px;" inputmode="numeric" aria-describedby="tenure-help tenure-error" />
+          <p id="tenure-help" class="helper-text">Longer tenure = lower EMI but more interest overall</p>
+          <p id="tenure-error" class="text-xs mt-1" style="color:var(--color-error);display:none;"></p>
+        </div>
+
+        <!-- Monthly Income (optional) -->
+        <div>
+          <label for="income" class="block text-sm font-medium mb-1">Monthly Take-Home Income <span class="text-muted font-normal">(optional)</span></label>
+          <input type="number" id="income" min="0" max="100000000" step="1000" value="" placeholder="e.g. 1,20,000" class="w-full px-3 py-2.5 rounded-lg border border-default text-base" style="min-height:48px;" inputmode="numeric" />
+          <p class="helper-text">Used to check if this EMI fits your budget. Not stored.</p>
+        </div>
+
+        <!-- More Options (collapsible) -->
+        <div>
+          <button type="button" id="toggle-more-options" class="flex items-center gap-2 text-sm font-medium text-primary cursor-pointer py-1" style="background:none;border:none;">
+            <svg id="more-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+            More options (fees, down payment)
+          </button>
+          <div id="more-options" class="collapsible-content">
+            <div class="space-y-4 pt-3">
+              <div>
+                <label for="processing-fee" class="block text-sm font-medium mb-1">Processing Fee (%)</label>
+                <input type="number" id="processing-fee" min="0" max="10" step="0.1" value="1" class="w-full px-3 py-2.5 rounded-lg border border-default text-base" style="min-height:48px;" inputmode="decimal" />
+                <p class="helper-text">Banks typically charge 0.5–2% of the loan amount</p>
+              </div>
+              <div>
+                <label for="down-payment" class="block text-sm font-medium mb-1">Down Payment (<span class="dp-currency">₹</span>)</label>
+                <input type="number" id="down-payment" min="0" max="100000000" step="10000" value="0" class="w-full px-3 py-2.5 rounded-lg border border-default text-base" style="min-height:48px;" inputmode="numeric" />
+                <p class="helper-text">Amount you'll pay upfront. Loan = property cost − down payment.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results Panel (sticky on desktop) -->
+    <div class="results-sticky">
+      <div class="surface-card p-4 sm:p-6">
+        <p class="text-xs font-medium text-muted uppercase tracking-wider mb-1">Your Monthly EMI</p>
+        <p id="result-emi" class="result-hero mb-4" aria-live="polite">—</p>
+
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <p class="text-xs text-muted mb-0.5">Total Interest</p>
+            <p id="result-interest" class="result-secondary" aria-live="polite">—</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted mb-0.5">Total Amount</p>
+            <p id="result-total" class="result-secondary" aria-live="polite">—</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted mb-0.5">True Cost <span class="text-xs font-normal">(incl. fees)</span></p>
+            <p id="result-true-cost" class="result-secondary" aria-live="polite">—</p>
+          </div>
+          <div>
+            <p class="text-xs text-muted mb-0.5">Loan-Free Date</p>
+            <p id="result-payoff" class="result-secondary" aria-live="polite">—</p>
+          </div>
+        </div>
+
+        <!-- Breakdown Bar -->
+        <div class="mb-4">
+          <div class="flex items-center gap-4 text-xs text-muted mb-1.5">
+            <span class="flex items-center gap-1.5">
+              <span class="inline-block w-2.5 h-2.5 rounded-sm" style="background:var(--color-primary);"></span> Principal
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="inline-block w-2.5 h-2.5 rounded-sm" style="background:var(--color-amber);"></span> Interest
+            </span>
+          </div>
+          <div class="w-full h-5 rounded-full overflow-hidden" style="background:var(--color-border);">
+            <div id="breakdown-bar" class="h-full rounded-full flex transition-all duration-500" style="width:100%;">
+              <div id="bar-principal" class="h-full transition-all duration-500" style="background:var(--color-primary);width:50%;"></div>
+              <div id="bar-interest" class="h-full transition-all duration-500" style="background:var(--color-amber);width:50%;"></div>
+            </div>
+          </div>
+          <div class="flex justify-between text-xs text-muted mt-1">
+            <span id="bar-principal-pct">50%</span>
+            <span id="bar-interest-pct">50%</span>
+          </div>
+        </div>
+
+        <!-- Affordability Gauge -->
+        <div id="affordability-section" style="display:none;">
+          <div class="mb-2">
+            <div class="flex items-center justify-between text-xs text-muted mb-1.5">
+              <span>EMI / Income Ratio</span>
+              <span id="afford-ratio" class="font-semibold">—</span>
+            </div>
+            <div class="gauge-track">
+              <div id="gauge-marker" class="gauge-marker" style="left:0%;"></div>
+            </div>
+            <div class="flex justify-between text-xs text-muted mt-1">
+              <span>0%</span>
+              <span style="margin-left:25%;">30%</span>
+              <span style="margin-left:5%;">40%</span>
+              <span>60%+</span>
+            </div>
+          </div>
+          <div id="afford-message" class="p-3 rounded-lg text-sm mt-2" style="display:none;"></div>
+        </div>
+
+        <!-- Trust line -->
+        <p class="text-xs text-muted mt-4 pt-3 border-t border-default" style="border-color:var(--color-border);">
+          🔒 100% private. Your numbers never leave your browser.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scenario Comparison -->
+  <div id="scenario-section" class="mt-8">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3 class="text-xl sm:text-2xl" style="font-family:var(--font-display);">Compare Loan Offers</h3>
+        <p class="text-sm text-muted">See two or three options side by side. Change rate, tenure, or amount in each.</p>
+      </div>
+      <button type="button" id="add-scenario" class="text-sm font-medium text-primary px-4 py-2 rounded-lg border border-default cursor-pointer transition-colors hover:bg-primary-light" style="min-height:44px;background:none;">
+        + Add Scenario
+      </button>
+    </div>
+    <div id="scenario-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Scenario A auto-populated from current calc -->
+      <div class="scenario-card active-scenario" id="scenario-a">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-sm font-semibold">Scenario A</span>
+          <span class="text-xs text-muted" id="scenario-a-desc">—</span>
+        </div>
+        <div class="space-y-2">
+          <div class="flex justify-between text-sm"><span class="text-muted">EMI</span><span class="font-semibold" id="scenario-a-emi">—</span></div>
+          <div class="flex justify-between text-sm"><span class="text-muted">Total Interest</span><span id="scenario-a-interest">—</span></div>
+          <div class="flex justify-between text-sm"><span class="text-muted">Total Cost</span><span id="scenario-a-total">—</span></div>
+          <div class="flex justify-between text-sm"><span class="text-muted">Payoff Date</span><span id="scenario-a-payoff">—</span></div>
+          <div class="flex justify-between text-sm"><span class="text-muted">EMI/Income</span><span id="scenario-a-afford">—</span></div>
+        </div>
+      </div>
+    </div>
+    <p id="scenario-diff" class="text-sm mt-3" style="display:none;"></p>
+  </div>
+
+  <!-- Prepayment Simulator -->
+  <div id="prepayment-section" class="mt-8">
+    <button type="button" id="toggle-prepayment" class="flex items-center gap-2 text-lg font-medium cursor-pointer py-2" style="background:none;border:none;font-family:var(--font-display);">
+      <svg id="prepay-chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+      What if you prepay?
+    </button>
+    <p class="text-sm text-muted ml-7 -mt-1">See how extra payments reduce total interest and shorten your loan.</p>
+
+    <div id="prepayment-panel" class="collapsible-content">
+      <div class="surface-card p-4 sm:p-6 mt-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label for="prepay-amount" class="block text-sm font-medium mb-1">Annual Prepayment (<span class="prepay-currency">₹</span>)</label>
+            <input type="number" id="prepay-amount" min="0" max="100000000" step="10000" value="100000" class="w-full px-3 py-2.5 rounded-lg border border-default text-base" style="min-height:48px;" inputmode="numeric" />
+          </div>
+          <div>
+            <label for="prepay-start" class="block text-sm font-medium mb-1">Start From Year</label>
+            <input type="number" id="prepay-start" min="1" max="40" step="1" value="2" class="w-full px-3 py-2.5 rounded-lg border border-default text-base" style="min-height:48px;" inputmode="numeric" />
+          </div>
+        </div>
+
+        <!-- Prepayment Results -->
+        <div class="prepay-comparison">
+          <div class="prepay-before">
+            <p class="text-xs font-medium text-muted uppercase tracking-wider mb-2">Without Prepayment</p>
+            <div class="space-y-1.5 text-sm">
+              <div class="flex justify-between"><span class="text-muted">Total Interest</span><span id="prepay-orig-interest" class="font-medium">Enter values above</span></div>
+              <div class="flex justify-between"><span class="text-muted">Tenure</span><span id="prepay-orig-tenure" class="font-medium">Enter values above</span></div>
+            </div>
+          </div>
+          <div class="prepay-after">
+            <p class="text-xs font-medium uppercase tracking-wider mb-2" style="color:var(--color-success);">With Prepayment</p>
+            <div class="space-y-1.5 text-sm">
+              <div class="flex justify-between"><span class="text-muted">Total Interest</span><span id="prepay-new-interest" class="font-bold">Enter values above</span></div>
+              <div class="flex justify-between"><span class="text-muted">Tenure</span><span id="prepay-new-tenure" class="font-bold">Enter values above</span></div>
+              <div class="flex justify-between pt-1 border-t border-default"><span class="text-muted">Interest Saved</span><span id="prepay-saved" class="scenario-diff-positive">Not available yet</span></div>
+              <div class="flex justify-between"><span class="text-muted">Months Saved</span><span id="prepay-months" class="scenario-diff-positive">Not available yet</span></div>
+            </div>
+          </div>
+        </div>
+        <p id="prepay-summary" class="text-sm text-muted mt-4 p-4 rounded-lg bg-primary-light border border-default" style="border-color: rgba(1, 105, 111, 0.2);"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Year-Grouped Amortization -->
+  <div id="amortization-section" class="mt-8 mb-12">
+    <button type="button" id="toggle-amortization" class="flex items-center gap-2 text-lg font-medium cursor-pointer py-2" style="background:none;border:none;font-family:var(--font-display);">
+      <svg id="amort-chevron" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+      Amortization Schedule
+    </button>
+    <p class="text-sm text-muted ml-7 -mt-1">Year-by-year breakdown of your loan repayment.</p>
+
+    <div id="amortization-wrapper" class="collapsible-content">
+      <div class="surface-card overflow-hidden mt-3 border border-default shadow-sm" id="amort-container">
+        <!-- Year groups injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Support / Buy Me A Chai CTA -->
+  <div class="mt-12 surface-card p-6 sm:p-8 text-center bg-primary-light" style="border-style: dashed; border-width: 2px;">
+    <h3 class="text-xl font-semibold mb-2" style="color: var(--color-primary);">Support This Tool</h3>
+    <p class="text-sm text-muted max-w-lg mx-auto mb-5 leading-relaxed">
+      This calculator is 100% free, private, and runs entirely in your browser without any paywalls. If it helped you plan your loan or save money, consider supporting future improvements!
+    </p>
+    <a href="https://buymeachai.ezee.li/anoops" target="_blank" rel="noopener noreferrer" class="inline-block transition-transform hover:scale-105 active:scale-95">
+      <img src="https://buymeachai.ezee.li/assets/images/buymeachai-button.png" alt="Buy Me A Chai" width="200" class="rounded-lg shadow-sm">
+    </a>
+  </div>
+</section>
+
+<script>
+  // ──────────────────────────────────────────
+  // EMI Calculator — Client-side logic
+  // ──────────────────────────────────────────
+
+  // ─── EMI Formulas ───
+
+  function calcReducing(P: number, rate: number, N: number) {
+    if (P <= 0 || N <= 0) return { emi: 0, totalInterest: 0, totalAmount: 0 };
+    if (rate === 0) return { emi: P / N, totalInterest: 0, totalAmount: P };
+    const R = rate / 12 / 100;
+    const pow = Math.pow(1 + R, N);
+    const emi = (P * R * pow) / (pow - 1);
+    return { emi, totalInterest: emi * N - P, totalAmount: emi * N };
+  }
+
+  function calcFlat(P: number, rate: number, N: number) {
+    if (P <= 0 || N <= 0) return { emi: 0, totalInterest: 0, totalAmount: 0 };
+    const years = N / 12;
+    const ti = P * (rate / 100) * years;
+    return { emi: (P + ti) / N, totalInterest: ti, totalAmount: P + ti };
+  }
+
+  function calcEmi(P: number, rate: number, N: number, method: string) {
+    return method === 'reducing' ? calcReducing(P, rate, N) : calcFlat(P, rate, N);
+  }
+
+  // ─── Prepayment ───
+
+  function calcPrepayment(P: number, rate: number, N: number, amount: number, startYear: number) {
+    const orig = calcReducing(P, rate, N);
+    const R = rate / 12 / 100;
+    if (R === 0 || amount <= 0) {
+      return { origInterest: orig.totalInterest, newInterest: orig.totalInterest, origMonths: N, newMonths: N, saved: 0, monthsSaved: 0 };
+    }
+    let bal = P, emi = orig.emi, totalInt = 0, mo = 0;
+    for (let m = 1; m <= N * 2 && bal > 0.01; m++) {
+      const interest = bal * R;
+      const princ = Math.min(emi - interest, bal);
+      bal = Math.max(0, bal - princ);
+      totalInt += interest;
+      mo = m;
+      if (m % 12 === 0 && m / 12 >= startYear && bal > 0) {
+        bal = Math.max(0, bal - Math.min(amount, bal));
+      }
+      if (bal <= 0.01) break;
+    }
+    return { origInterest: orig.totalInterest, newInterest: totalInt, origMonths: N, newMonths: mo, saved: orig.totalInterest - totalInt, monthsSaved: N - mo };
+  }
+
+  // ─── Amortization ───
+
+  interface AmortRow { month: number; year: number; opening: number; emi: number; principal: number; interest: number; closing: number; }
+  interface YearGroup { year: number; totalPrincipal: number; totalInterest: number; closingBalance: number; months: AmortRow[]; }
+
+  function genAmortization(P: number, rate: number, N: number, method: string): YearGroup[] {
+    if (P <= 0 || N <= 0) return [];
+    const rows: AmortRow[] = [];
+    if (method === 'reducing') {
+      const { emi } = calcReducing(P, rate, N);
+      const R = rate / 12 / 100;
+      let bal = P;
+      for (let m = 1; m <= N; m++) {
+        const interest = bal * R;
+        const principal = emi - interest;
+        const closing = Math.max(0, bal - principal);
+        rows.push({ month: m, year: Math.ceil(m / 12), opening: bal, emi, principal, interest, closing });
+        bal = closing;
+      }
+    } else {
+      const { emi, totalInterest } = calcFlat(P, rate, N);
+      const mi = totalInterest / N, mp = P / N;
+      let bal = P;
+      for (let m = 1; m <= N; m++) {
+        const closing = Math.max(0, bal - mp);
+        rows.push({ month: m, year: Math.ceil(m / 12), opening: bal, emi, principal: mp, interest: mi, closing });
+        bal = closing;
+      }
+    }
+    // Group by year
+    const years: YearGroup[] = [];
+    let cur: YearGroup | null = null;
+    for (const r of rows) {
+      if (!cur || cur.year !== r.year) {
+        if (cur) years.push(cur);
+        cur = { year: r.year, totalPrincipal: 0, totalInterest: 0, closingBalance: 0, months: [] };
+      }
+      cur.totalPrincipal += r.principal;
+      cur.totalInterest += r.interest;
+      cur.closingBalance = r.closing;
+      cur.months.push(r);
+    }
+    if (cur) years.push(cur);
+    return years;
+  }
+
+  // ─── Formatting ───
+
+  function fmtIndian(n: number): string {
+    const s = Math.round(n).toString();
+    if (s.length <= 3) return s;
+    let last3 = s.substring(s.length - 3);
+    const rest = s.substring(0, s.length - 3);
+    if (rest !== '') last3 = ',' + last3;
+    return rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + last3;
+  }
+
+  function fmt(amount: number, curr: string): string {
+    if (curr === 'INR') return '₹' + fmtIndian(amount);
+    return '$' + Math.round(amount).toLocaleString('en-US');
+  }
+
+  function fmtTenure(months: number): string {
+    const y = Math.floor(months / 12), m = months % 12;
+    if (y === 0) return `${m} mo`;
+    if (m === 0) return `${y} yr${y > 1 ? 's' : ''}`;
+    return `${y} yr${y > 1 ? 's' : ''} ${m} mo`;
+  }
+
+  function payoffDate(months: number): string {
+    const now = new Date();
+    const d = new Date(now.getFullYear(), now.getMonth() + months, 1);
+    return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  }
+
+  // ─── Count-up Animation ───
+
+  function animateVal(el: HTMLElement, start: number, end: number, curr: string, dur = 500) {
+    const t0 = performance.now();
+    function tick(now: number) {
+      const p = Math.min((now - t0) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(start + (end - start) * eased, curr);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // ─── State ───
+
+  let currency = 'INR';
+  let method = 'reducing';
+  let tenureUnit = 'years';
+  let loanType = 'home';
+  let prevEmi = 0, prevInt = 0, prevTot = 0;
+  let amortVisible = false;
+  let prepayVisible = false;
+  let moreOptionsOpen = false;
+
+  // Scenario state
+  interface ScenarioState { label: string; principal: number; rate: number; months: number; method: string; }
+  let scenarioB: ScenarioState | null = null;
+  let scenarioCount = 1;
+
+  // ─── Presets ───
+
+  const presets: Record<string, { principal: number; rate: number; tenure: number; hint: string }> = {
+    home: { principal: 5000000, rate: 8.5, tenure: 20, hint: 'Most home loans: 8–10%' },
+    car: { principal: 800000, rate: 9.5, tenure: 5, hint: 'Car loans: 9–12%' },
+    personal: { principal: 300000, rate: 14.0, tenure: 3, hint: 'Personal loans: 11–18%' },
+  };
+
+  // ─── DOM ───
+
+  const $p = document.getElementById('principal') as HTMLInputElement;
+  const $r = document.getElementById('rate') as HTMLInputElement;
+  const $rs = document.getElementById('rate-slider') as HTMLInputElement;
+  const $t = document.getElementById('tenure') as HTMLInputElement;
+  const $income = document.getElementById('income') as HTMLInputElement;
+  const $fee = document.getElementById('processing-fee') as HTMLInputElement;
+  const $dp = document.getElementById('down-payment') as HTMLInputElement;
+
+  const $emi = document.getElementById('result-emi')!;
+  const $int = document.getElementById('result-interest')!;
+  const $tot = document.getElementById('result-total')!;
+  const $trueCost = document.getElementById('result-true-cost')!;
+  const $payoff = document.getElementById('result-payoff')!;
+
+  const $barP = document.getElementById('bar-principal')!;
+  const $barI = document.getElementById('bar-interest')!;
+  const $barPpct = document.getElementById('bar-principal-pct')!;
+  const $barIpct = document.getElementById('bar-interest-pct')!;
+
+  const $affordSec = document.getElementById('affordability-section')!;
+  const $affordRatio = document.getElementById('afford-ratio')!;
+  const $affordMsg = document.getElementById('afford-message')!;
+  const $gaugeMark = document.getElementById('gauge-marker')!;
+
+  const $currSym = document.getElementById('currency-symbol')!;
+  const $rateHelp = document.getElementById('rate-help')!;
+
+  // ─── Validation ───
+
+  function validate(el: HTMLInputElement, min: number, max: number): { ok: boolean; v: number } {
+    const v = parseFloat(el.value);
+    const err = document.getElementById(el.id + '-error');
+    if (isNaN(v) || v < min || v > max) {
+      el.classList.add('input-error');
+      if (err) { err.textContent = `Enter a value between ${min.toLocaleString()} and ${max.toLocaleString()}`; err.style.display = 'block'; }
+      return { ok: false, v: 0 };
+    }
+    el.classList.remove('input-error');
+    if (err) err.style.display = 'none';
+    return { ok: true, v };
+  }
+
+  // ─── Main Calculate ───
+
+  function calculate() {
+    const pR = validate($p, 10000, 100000000);
+    const rR = validate($r, 0, 36);
+    const tR = validate($t, 1, tenureUnit === 'years' ? 40 : 480);
+    if (!pR.ok || !rR.ok || !tR.ok) return;
+
+    const P = pR.v, R = rR.v;
+    const N = tenureUnit === 'years' ? tR.v * 12 : tR.v;
+    const result = calcEmi(P, R, N, method);
+    const feePct = parseFloat($fee.value) || 0;
+    const trueCost = result.totalAmount + P * (feePct / 100);
+
+    animateVal($emi, prevEmi, result.emi, currency);
+    animateVal($int, prevInt, result.totalInterest, currency);
+    animateVal($tot, prevTot, result.totalAmount, currency);
+    $trueCost.textContent = fmt(trueCost, currency);
+    $payoff.textContent = payoffDate(N);
+
+    prevEmi = result.emi; prevInt = result.totalInterest; prevTot = result.totalAmount;
+
+    // Breakdown bar
+    const pp = result.totalAmount > 0 ? (P / result.totalAmount) * 100 : 50;
+    $barP.style.width = pp + '%'; $barI.style.width = (100 - pp) + '%';
+    $barPpct.textContent = pp.toFixed(1) + '%'; $barIpct.textContent = (100 - pp).toFixed(1) + '%';
+
+    // Affordability
+    const income = parseFloat($income.value) || 0;
+    if (income > 0) {
+      $affordSec.style.display = 'block';
+      const ratio = (result.emi / income) * 100;
+      $affordRatio.textContent = ratio.toFixed(0) + '%';
+      const markerPos = Math.min(ratio / 60 * 100, 100);
+      $gaugeMark.style.left = markerPos + '%';
+
+      $affordMsg.style.display = 'block';
+      if (ratio <= 30) {
+        $affordMsg.className = 'p-3 rounded-lg text-sm mt-2 affordability-safe';
+        $affordMsg.innerHTML = `✅ <strong>Comfortable</strong> — Your EMI is ${ratio.toFixed(0)}% of your income. Banks approve up to 40%, but staying under 30% leaves room for emergencies.`;
+      } else if (ratio <= 40) {
+        $affordMsg.className = 'p-3 rounded-lg text-sm mt-2 affordability-stretched';
+        $affordMsg.innerHTML = `⚠️ <strong>Stretched</strong> — Your EMI is ${ratio.toFixed(0)}% of your income. Within most banks' limits, but less room for savings. Consider a longer tenure or smaller loan.`;
+      } else {
+        $affordMsg.className = 'p-3 rounded-lg text-sm mt-2 affordability-risky';
+        $affordMsg.innerHTML = `🔴 <strong>High risk</strong> — Your EMI is ${ratio.toFixed(0)}% of your income. Most banks will reject this. Reduce the loan amount, extend tenure, or increase your down payment.`;
+      }
+    } else {
+      $affordSec.style.display = 'none';
+    }
+
+    // Scenario A
+    document.getElementById('scenario-a-desc')!.textContent = `${fmt(P, currency)} at ${R}% for ${fmtTenure(N)}`;
+    document.getElementById('scenario-a-emi')!.textContent = fmt(result.emi, currency) + '/mo';
+    document.getElementById('scenario-a-interest')!.textContent = fmt(result.totalInterest, currency);
+    document.getElementById('scenario-a-total')!.textContent = fmt(trueCost, currency);
+    document.getElementById('scenario-a-payoff')!.textContent = payoffDate(N);
+    document.getElementById('scenario-a-afford')!.textContent = income > 0 ? ((result.emi / income) * 100).toFixed(0) + '%' : 'Add income';
+
+    // Scenario B
+    if (scenarioB) updateScenarioB();
+
+    // Amortization
+    if (amortVisible) renderAmortization(P, R, N);
+
+    // Prepayment
+    if (prepayVisible) renderPrepayment(P, R, N);
+  }
+
+  // ─── Scenario B ───
+
+  function addScenarioB() {
+    if (scenarioCount >= 2) return;
+    scenarioCount = 2;
+    const pR = validate($p, 10000, 100000000);
+    const rR = validate($r, 0, 36);
+    const tR = validate($t, 1, tenureUnit === 'years' ? 40 : 480);
+    if (!pR.ok || !rR.ok || !tR.ok) return;
+    const N = tenureUnit === 'years' ? tR.v * 12 : tR.v;
+    scenarioB = { label: 'Scenario B', principal: pR.v, rate: rR.v, months: N, method };
+
+    const card = document.createElement('div');
+    card.className = 'scenario-card';
+    card.id = 'scenario-b';
+    card.innerHTML = `
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-sm font-semibold">Scenario B</span>
+        <button type="button" class="text-xs text-muted cursor-pointer" style="background:none;border:none;" id="remove-b">✕ Remove</button>
+      </div>
+      <div class="space-y-2 mb-3">
+        <div><label class="text-xs text-muted">Rate (%)</label><input type="number" id="sb-rate" value="${rR.v}" step="0.1" min="0.1" max="36" class="w-full px-2 py-1.5 rounded border border-default text-sm mt-0.5" style="min-height:40px;" /></div>
+        <div><label class="text-xs text-muted">Tenure (years)</label><input type="number" id="sb-tenure" value="${Math.round(N/12)}" step="1" min="1" max="40" class="w-full px-2 py-1.5 rounded border border-default text-sm mt-0.5" style="min-height:40px;" /></div>
+      </div>
+      <div class="space-y-1.5 text-sm border-t border-default pt-2" style="border-color:var(--color-border);">
+        <div class="flex justify-between"><span class="text-muted">EMI</span><span class="font-semibold" id="sb-emi">Calculating...</span></div>
+        <div class="flex justify-between text-sm"><span class="text-muted">Total Interest</span><span id="sb-interest">Calculating...</span></div>
+        <div class="flex justify-between text-sm"><span class="text-muted">Total Cost</span><span id="sb-total">Calculating...</span></div>
+        <div class="flex justify-between text-sm"><span class="text-muted">Payoff</span><span id="sb-payoff">Calculating...</span></div>
+        <div class="flex justify-between text-sm"><span class="text-muted">EMI/Income</span><span id="sb-afford">Calculating...</span></div>
+      </div>
+    `;
+    document.getElementById('scenario-cards')!.appendChild(card);
+
+    document.getElementById('remove-b')!.addEventListener('click', removeScenarioB);
+    document.getElementById('sb-rate')!.addEventListener('input', updateScenarioB);
+    document.getElementById('sb-tenure')!.addEventListener('input', updateScenarioB);
+
+    document.getElementById('add-scenario')!.style.display = 'none';
+    updateScenarioB();
+  }
+
+  function updateScenarioB() {
+    const rateEl = document.getElementById('sb-rate') as HTMLInputElement;
+    const tenureEl = document.getElementById('sb-tenure') as HTMLInputElement;
+    if (!rateEl || !tenureEl) return;
+    const pR = validate($p, 10000, 100000000);
+    if (!pR.ok) return;
+    const bRate = parseFloat(rateEl.value) || 0;
+    const bTenure = (parseFloat(tenureEl.value) || 1) * 12;
+    const bResult = calcEmi(pR.v, bRate, bTenure, method);
+    const feePct = parseFloat($fee.value) || 0;
+    const bCost = bResult.totalAmount + pR.v * (feePct / 100);
+
+    document.getElementById('sb-emi')!.textContent = fmt(bResult.emi, currency) + '/mo';
+    document.getElementById('sb-interest')!.textContent = fmt(bResult.totalInterest, currency);
+    document.getElementById('sb-total')!.textContent = fmt(bCost, currency);
+    document.getElementById('sb-payoff')!.textContent = payoffDate(bTenure);
+    
+    const income = parseFloat($income.value) || 0;
+    document.getElementById('sb-afford')!.textContent = income > 0 ? ((bResult.emi / income) * 100).toFixed(0) + '%' : 'Add income';
+
+    // Show diff
+    const aInterest = prevInt;
+    const diff = aInterest - bResult.totalInterest;
+    const $diff = document.getElementById('scenario-diff')!;
+    if (Math.abs(diff) > 100) {
+      $diff.style.display = 'block';
+      if (diff > 0) {
+        $diff.innerHTML = `<span class="scenario-diff-positive">Scenario B saves ${fmt(diff, currency)} in interest</span> vs. Scenario A, but EMI is ${fmt(bResult.emi - prevEmi, currency)} ${bResult.emi > prevEmi ? 'higher' : 'lower'}.`;
+      } else {
+        $diff.innerHTML = `<span class="scenario-diff-negative">Scenario B costs ${fmt(-diff, currency)} more in interest</span> vs. Scenario A, but EMI is ${fmt(prevEmi - bResult.emi, currency)} lower.`;
+      }
+    }
+  }
+
+  function removeScenarioB() {
+    document.getElementById('scenario-b')?.remove();
+    scenarioCount = 1;
+    scenarioB = null;
+    document.getElementById('add-scenario')!.style.display = '';
+    document.getElementById('scenario-diff')!.style.display = 'none';
+  }
+
+  // ─── Prepayment ───
+
+  function renderPrepayment(P: number, R: number, N: number) {
+    const amt = parseFloat((document.getElementById('prepay-amount') as HTMLInputElement).value) || 0;
+    const startYr = parseInt((document.getElementById('prepay-start') as HTMLInputElement).value) || 1;
+    const result = calcPrepayment(P, R, N, amt, startYr);
+
+    document.getElementById('prepay-orig-interest')!.textContent = fmt(result.origInterest, currency);
+    document.getElementById('prepay-orig-tenure')!.textContent = fmtTenure(result.origMonths);
+    document.getElementById('prepay-new-interest')!.textContent = fmt(result.newInterest, currency);
+    document.getElementById('prepay-new-tenure')!.textContent = fmtTenure(result.newMonths);
+    
+    if (result.saved > 0) {
+      document.getElementById('prepay-saved')!.textContent = fmt(result.saved, currency);
+      document.getElementById('prepay-months')!.textContent = result.monthsSaved + ' months';
+    } else {
+      document.getElementById('prepay-saved')!.textContent = 'Enter value above';
+      document.getElementById('prepay-months')!.textContent = 'Enter value above';
+    }
+
+    const summary = document.getElementById('prepay-summary')!;
+    if (result.saved > 0) {
+      summary.innerHTML = `Prepaying <strong>${fmt(amt, currency)}/year</strong> from Year ${startYr} saves you <strong>${fmt(result.saved, currency)}</strong> and clears your loan <strong>${Math.floor(result.monthsSaved / 12)} years ${result.monthsSaved % 12} months early</strong>.`;
+    } else {
+      summary.textContent = 'Enter a prepayment amount to see savings.';
+    }
+  }
+
+  // ─── Amortization (Yearly Table) ───
+
+  function renderAmortization(P: number, R: number, N: number) {
+    const years = genAmortization(P, R, N, method);
+    const container = document.getElementById('amort-container')!;
+    
+    let html = `
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm whitespace-nowrap">
+          <thead>
+            <tr style="background:var(--color-primary-light);">
+              <th class="px-4 py-3 text-left font-semibold text-primary uppercase tracking-wider text-[10px] sm:text-xs">Year</th>
+              <th class="px-4 py-3 text-right font-semibold text-primary uppercase tracking-wider text-[10px] sm:text-xs">Opening Balance</th>
+              <th class="px-4 py-3 text-right font-semibold text-primary uppercase tracking-wider text-[10px] sm:text-xs">Principal Paid</th>
+              <th class="px-4 py-3 text-right font-semibold text-primary uppercase tracking-wider text-[10px] sm:text-xs">Interest Paid</th>
+              <th class="px-4 py-3 text-right font-semibold text-primary uppercase tracking-wider text-[10px] sm:text-xs">Closing Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    years.forEach(yr => {
+      const opening = yr.months.length > 0 ? yr.months[0].opening : 0;
+      html += `
+        <tr class="border-t border-default hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+          <td class="px-4 py-3 text-left font-medium">Year ${yr.year}</td>
+          <td class="px-4 py-3 text-right">${fmt(opening, currency)}</td>
+          <td class="px-4 py-3 text-right">${fmt(yr.totalPrincipal, currency)}</td>
+          <td class="px-4 py-3 text-right text-amber-600 dark:text-amber-400">${fmt(yr.totalInterest, currency)}</td>
+          <td class="px-4 py-3 text-right font-medium">${fmt(yr.closingBalance, currency)}</td>
+        </tr>`;
+    });
+
+    html += `
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    container.innerHTML = html;
+  }
+
+  // ─── Debounce ───
+
+  let dt: ReturnType<typeof setTimeout>;
+  function debCalc() { clearTimeout(dt); dt = setTimeout(calculate, 150); }
+
+  // ─── Event Listeners ───
+
+  $p.addEventListener('input', debCalc);
+  $r.addEventListener('input', () => { $rs.value = $r.value; debCalc(); });
+  $rs.addEventListener('input', () => { $r.value = $rs.value; debCalc(); });
+  $t.addEventListener('input', debCalc);
+  $income.addEventListener('input', debCalc);
+  $fee.addEventListener('input', debCalc);
+  $dp.addEventListener('input', debCalc);
+
+  // Currency
+  document.getElementById('btn-inr')!.addEventListener('click', () => {
+    currency = 'INR'; $currSym.textContent = '₹';
+    document.querySelectorAll('.dp-currency, .prepay-currency').forEach(el => el.textContent = '₹');
+    setToggle('btn-inr', 'btn-usd'); calculate();
+  });
+  document.getElementById('btn-usd')!.addEventListener('click', () => {
+    currency = 'USD'; $currSym.textContent = '$';
+    document.querySelectorAll('.dp-currency, .prepay-currency').forEach(el => el.textContent = '$');
+    setToggle('btn-usd', 'btn-inr'); calculate();
+  });
+
+  // Method
+  document.getElementById('btn-reducing')!.addEventListener('click', () => { method = 'reducing'; setToggle('btn-reducing', 'btn-flat'); calculate(); });
+  document.getElementById('btn-flat')!.addEventListener('click', () => { method = 'flat'; setToggle('btn-flat', 'btn-reducing'); calculate(); });
+
+  // Tenure unit
+  document.getElementById('btn-years')!.addEventListener('click', () => {
+    if (tenureUnit === 'months') {
+      tenureUnit = 'years'; $t.value = String(Math.max(1, Math.round(parseFloat($t.value) / 12))); $t.max = '40';
+      setToggle('btn-years', 'btn-months'); calculate();
+    }
+  });
+  document.getElementById('btn-months')!.addEventListener('click', () => {
+    if (tenureUnit === 'years') {
+      tenureUnit = 'months'; $t.value = String(Math.min(480, parseFloat($t.value) * 12)); $t.max = '480';
+      setToggle('btn-months', 'btn-years'); calculate();
+    }
+  });
+
+  // Loan type presets
+  ['home', 'car', 'personal'].forEach(type => {
+    document.getElementById(`preset-${type}`)!.addEventListener('click', () => {
+      const p = presets[type];
+      loanType = type;
+      $p.value = String(p.principal); $r.value = String(p.rate); $rs.value = String(p.rate);
+      $t.value = String(p.tenure); tenureUnit = 'years'; $t.max = '40';
+      setToggle('btn-years', 'btn-months');
+      $rateHelp.textContent = p.hint;
+      document.querySelectorAll('.loan-type-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-checked', 'false'); });
+      document.getElementById(`preset-${type}`)!.classList.add('active');
+      document.getElementById(`preset-${type}`)!.setAttribute('aria-checked', 'true');
+      calculate();
+    });
+  });
+
+  // More options toggle
+  document.getElementById('toggle-more-options')!.addEventListener('click', () => {
+    moreOptionsOpen = !moreOptionsOpen;
+    const panel = document.getElementById('more-options')!;
+    const chev = document.getElementById('more-chevron')!;
+    panel.classList.toggle('open');
+    chev.style.transform = moreOptionsOpen ? 'rotate(180deg)' : '';
+  });
+
+  // Amortization toggle
+  document.getElementById('toggle-amortization')!.addEventListener('click', () => {
+    amortVisible = !amortVisible;
+    const wrap = document.getElementById('amortization-wrapper')!;
+    const chev = document.getElementById('amort-chevron')!;
+    wrap.classList.toggle('open');
+    chev.style.transform = amortVisible ? 'rotate(180deg)' : '';
+    if (amortVisible) {
+      const pR = validate($p, 10000, 100000000), rR = validate($r, 0, 36), tR = validate($t, 1, tenureUnit === 'years' ? 40 : 480);
+      if (pR.ok && rR.ok && tR.ok) renderAmortization(pR.v, rR.v, tenureUnit === 'years' ? tR.v * 12 : tR.v);
+    }
+  });
+
+  // Prepayment toggle
+  document.getElementById('toggle-prepayment')!.addEventListener('click', () => {
+    prepayVisible = !prepayVisible;
+    const panel = document.getElementById('prepayment-panel')!;
+    const chev = document.getElementById('prepay-chevron')!;
+    panel.classList.toggle('open');
+    chev.style.transform = prepayVisible ? 'rotate(180deg)' : '';
+    if (prepayVisible) {
+      const pR = validate($p, 10000, 100000000), rR = validate($r, 0, 36), tR = validate($t, 1, tenureUnit === 'years' ? 40 : 480);
+      if (pR.ok && rR.ok && tR.ok) renderPrepayment(pR.v, rR.v, tenureUnit === 'years' ? tR.v * 12 : tR.v);
+    }
+  });
+
+  // Calculate Prepayment once on init so it's ready if toggled
+  function initPrepayment() {
+    const pR = validate($p, 10000, 100000000), rR = validate($r, 0, 36), tR = validate($t, 1, tenureUnit === 'years' ? 40 : 480);
+    if (pR.ok && rR.ok && tR.ok) renderPrepayment(pR.v, rR.v, tenureUnit === 'years' ? tR.v * 12 : tR.v);
+  }
+
+  // Prepayment inputs
+  document.getElementById('prepay-amount')!.addEventListener('input', () => {
+    if (!prepayVisible) return;
+    const pR = validate($p, 10000, 100000000), rR = validate($r, 0, 36), tR = validate($t, 1, tenureUnit === 'years' ? 40 : 480);
+    if (pR.ok && rR.ok && tR.ok) renderPrepayment(pR.v, rR.v, tenureUnit === 'years' ? tR.v * 12 : tR.v);
+  });
+  document.getElementById('prepay-start')!.addEventListener('input', () => {
+    if (!prepayVisible) return;
+    const pR = validate($p, 10000, 100000000), rR = validate($r, 0, 36), tR = validate($t, 1, tenureUnit === 'years' ? 40 : 480);
+    if (pR.ok && rR.ok && tR.ok) renderPrepayment(pR.v, rR.v, tenureUnit === 'years' ? tR.v * 12 : tR.v);
+  });
+
+  // Scenario
+  document.getElementById('add-scenario')!.addEventListener('click', addScenarioB);
+
+  // ─── Helpers ───
+
+  function setToggle(activeId: string, inactiveId: string) {
+    const a = document.getElementById(activeId)!, b = document.getElementById(inactiveId)!;
+    a.classList.add('active'); a.setAttribute('aria-checked', 'true');
+    b.classList.remove('active'); b.setAttribute('aria-checked', 'false');
+  }
+
+  // ─── Init ───
+  calculate();
+  initPrepayment();
+</script>

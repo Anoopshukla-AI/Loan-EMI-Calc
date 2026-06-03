@@ -1,0 +1,104 @@
+---
+/**
+ * FaqSection — Accordion FAQ with accessible keyboard navigation
+ */
+
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+const faqs: FaqItem[] = [
+  {
+    question: "How accurate is this calculator?",
+    answer: "It uses the standard reducing-balance EMI formula widely used by major lenders. Your result will closely match most banks, provided the principal, rate, and tenure match exactly. Note: Calculations are illustrative and do not account for bank-specific processing fees, GST, or floating-rate adjustments."
+  },
+  {
+    question: "Should I choose a shorter or longer tenure?",
+    answer: "Shorter tenure = higher EMI, much less total interest. Longer tenure = easier monthly payments, but significantly more interest over time. Rule of thumb: keep your EMI under 30% of your take-home pay, then pick the shortest tenure you can comfortably afford."
+  },
+  {
+    question: "What's the real cost difference between reducing balance and flat rate?",
+    answer: "A flat rate of 10% is roughly equivalent to 17–18% reducing balance. Always ask your lender which method they use. If they quote flat rate, compare it to a reducing balance offer — it will almost always be more expensive."
+  },
+  {
+    question: "Should I make prepayments on my loan?",
+    answer: "Almost always yes for home loans (most banks allow penalty-free prepayments after 1 year under RBI rules). For personal and car loans, check your lender's prepayment penalty — it's often 2–5% of the outstanding amount. Use the simulator above to see exact savings."
+  },
+  {
+    question: "Can I use this for loans outside India?",
+    answer: "Yes. Switch to $ (USD) using the currency toggle. The math is identical — only the number format changes. This works for US mortgages, Australian home loans, or any amortizing loan worldwide."
+  }
+];
+---
+
+<section id="faq" class="mt-16 border-t border-default pt-12" style="border-color: var(--color-border);">
+  <h2 class="text-2xl sm:text-3xl mb-2" style="font-family: var(--font-display);">
+    Frequently Asked Questions
+  </h2>
+  <p class="text-sm text-muted mb-6">Quick answers to common borrowing questions.</p>
+
+  <div class="space-y-3">
+    {faqs.map((faq, index) => (
+      <div class="surface-card overflow-hidden">
+        <button
+          type="button"
+          class="faq-toggle w-full flex items-center justify-between gap-3 px-4 py-4 text-left text-base font-medium cursor-pointer transition-colors hover:bg-primary-light"
+          style="min-height: 44px; background: none; border: none; color: var(--color-text);"
+          aria-expanded="false"
+          aria-controls={`faq-answer-${index}`}
+        >
+          <span>{faq.question}</span>
+          <svg class="faq-icon shrink-0" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s;">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
+        <div
+          id={`faq-answer-${index}`}
+          class="faq-answer px-4"
+          role="region"
+        >
+          <p class="text-sm leading-relaxed text-muted pb-4 m-0">{faq.answer}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  html[data-theme="dark"] .faq-toggle {
+    color: var(--color-dark-text) !important;
+  }
+  html[data-theme="dark"] .faq-toggle:hover {
+    background-color: var(--color-dark-primary-light) !important;
+  }
+</style>
+
+<script>
+  // FAQ Accordion logic
+  document.querySelectorAll('.faq-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      const answerId = btn.getAttribute('aria-controls')!;
+      const answer = document.getElementById(answerId)!;
+      const icon = btn.querySelector('.faq-icon') as SVGElement;
+
+      // Close all others
+      document.querySelectorAll('.faq-toggle').forEach(otherBtn => {
+        if (otherBtn !== btn) {
+          otherBtn.setAttribute('aria-expanded', 'false');
+          const otherId = otherBtn.getAttribute('aria-controls')!;
+          const otherAnswer = document.getElementById(otherId)!;
+          otherAnswer.classList.remove('open');
+          const otherIcon = otherBtn.querySelector('.faq-icon') as SVGElement;
+          if (otherIcon) otherIcon.style.transform = 'rotate(0)';
+        }
+      });
+
+      // Toggle current
+      btn.setAttribute('aria-expanded', String(!expanded));
+      answer.classList.toggle('open');
+      if (icon) icon.style.transform = expanded ? 'rotate(0)' : 'rotate(180deg)';
+    });
+  });
+</script>
