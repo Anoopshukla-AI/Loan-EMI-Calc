@@ -5,4 +5,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://emicalculator.example.com/sitemap-index.xml
+Sitemap: https://loan-emi-calc.pages.dev/sitemap-index.xml
