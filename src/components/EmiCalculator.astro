@@ -7,10 +7,10 @@
   <!-- Loan Type Selector -->
   <div class="flex flex-wrap gap-3 mb-6" role="radiogroup" aria-label="Loan type">
     <button type="button" id="preset-home" class="loan-type-btn active" role="radio" aria-checked="true" data-type="home">
-      <span>🏠</span> Home Loan
+      <span>🏠</span> <span id="lbl-home-loan">Home Loan</span>
     </button>
     <button type="button" id="preset-car" class="loan-type-btn" role="radio" aria-checked="false" data-type="car">
-      <span>🚗</span> Car Loan
+      <span>🚗</span> <span id="lbl-car-loan">Car Loan</span>
     </button>
     <button type="button" id="preset-personal" class="loan-type-btn" role="radio" aria-checked="false" data-type="personal">
       <span>💳</span> Personal Loan
@@ -39,8 +39,15 @@
         <div>
           <label for="principal" class="block text-sm font-medium mb-1">Loan Amount (<span id="currency-symbol">₹</span>)</label>
           <input type="number" id="principal" min="10000" max="100000000" step="10000" value="5000000" class="w-full px-3 py-2.5 rounded-lg border border-default text-base" style="min-height:48px;" inputmode="numeric" aria-describedby="principal-help principal-error" />
-          <p id="principal-help" class="helper-text">Total amount you plan to borrow (after down payment)</p>
+          <p id="principal-help" class="helper-text">Total amount you plan to borrow. Property cost = Loan Amount + Down Payment.</p>
           <p id="principal-error" class="text-xs mt-1" style="color:var(--color-error);display:none;"></p>
+        </div>
+
+        <!-- Down Payment -->
+        <div>
+          <label for="down-payment" class="block text-sm font-medium mb-1">Down Payment (<span class="dp-currency">₹</span>)</label>
+          <input type="number" id="down-payment" min="0" max="100000000" step="10000" value="0" class="w-full px-3 py-2.5 rounded-lg border border-default text-base" style="min-height:48px;" inputmode="numeric" />
+          <p class="helper-text">Amount you'll pay upfront. Crucial for mortgage and car calculations.</p>
         </div>
 
         <!-- Interest Rate -->
@@ -55,7 +62,7 @@
         <!-- Tenure -->
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label for="tenure" class="text-sm font-medium">Loan Tenure</label>
+            <label for="tenure" class="text-sm font-medium" id="lbl-loan-tenure">Loan Tenure</label>
             <div class="flex items-center rounded-md overflow-hidden border border-default" role="radiogroup" aria-label="Tenure unit">
               <button type="button" id="btn-years" class="toggle-btn-sm active px-2.5 py-1 text-xs font-medium" role="radio" aria-checked="true" style="min-height:32px;">Years</button>
               <button type="button" id="btn-months" class="toggle-btn-sm px-2.5 py-1 text-xs font-medium" role="radio" aria-checked="false" style="min-height:32px;">Months</button>
@@ -70,7 +77,7 @@
         <div>
           <label for="income" class="block text-sm font-medium mb-1">Monthly Take-Home Income <span class="text-muted font-normal">(optional)</span></label>
           <input type="number" id="income" min="0" max="100000000" step="1000" value="" placeholder="e.g. 1,20,000" class="w-full px-3 py-2.5 rounded-lg border border-default text-base" style="min-height:48px;" inputmode="numeric" />
-          <p class="helper-text">Used to check if this EMI fits your budget. Not stored.</p>
+          <p id="income-help" class="helper-text">Used to check if this EMI fits your budget. Not stored.</p>
         </div>
 
         <!-- More Options (collapsible) -->
@@ -84,14 +91,9 @@
           <div id="more-options" class="collapsible-content">
             <div class="space-y-4 pt-3">
               <div>
-                <label for="processing-fee" class="block text-sm font-medium mb-1">Processing Fee (%)</label>
+                <label for="processing-fee" class="block text-sm font-medium mb-1" id="lbl-processing-fee">Processing Fee (%)</label>
                 <input type="number" id="processing-fee" min="0" max="10" step="0.1" value="1" class="w-full px-3 py-2.5 rounded-lg border border-default text-base" style="min-height:48px;" inputmode="decimal" />
                 <p class="helper-text">Banks typically charge 0.5–2% of the loan amount</p>
-              </div>
-              <div>
-                <label for="down-payment" class="block text-sm font-medium mb-1">Down Payment (<span class="dp-currency">₹</span>)</label>
-                <input type="number" id="down-payment" min="0" max="100000000" step="10000" value="0" class="w-full px-3 py-2.5 rounded-lg border border-default text-base" style="min-height:48px;" inputmode="numeric" />
-                <p class="helper-text">Amount you'll pay upfront. Loan = property cost − down payment.</p>
               </div>
             </div>
           </div>
@@ -102,7 +104,7 @@
     <!-- RIGHT: Results Panel (sticky on desktop) -->
     <div class="results-sticky">
       <div class="surface-card p-4 sm:p-6">
-        <p class="text-xs font-medium text-muted uppercase tracking-wider mb-1">Your Monthly EMI</p>
+        <p class="text-xs font-medium text-muted uppercase tracking-wider mb-1" id="lbl-monthly-emi">Your Monthly EMI</p>
         <p id="result-emi" class="result-hero mb-4" aria-live="polite">—</p>
 
         <div class="grid grid-cols-2 gap-3 mb-4">
@@ -146,11 +148,21 @@
           </div>
         </div>
 
+        <div class="text-xs text-muted mt-4 pt-4 border-t border-default opacity-80 flex flex-col gap-2">
+          <div class="flex items-center justify-center gap-1.5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-success);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            Uses standard <span class="inr-text">reducing-balance</span><span class="usd-text hidden">amortization</span> formula
+          </div>
+          <div class="text-center italic opacity-75" style="font-size: 11px;">
+            Calculation assumes a fixed interest rate, no late fees, and compounding periods matching payment frequency.
+          </div>
+        </div>
+
         <!-- Affordability Gauge -->
         <div id="affordability-section" style="display:none;">
           <div class="mb-2">
             <div class="flex items-center justify-between text-xs text-muted mb-1.5">
-              <span>EMI / Income Ratio</span>
+              <span id="lbl-emi-income">EMI / Income Ratio</span>
               <span id="afford-ratio" class="font-semibold">—</span>
             </div>
             <div class="gauge-track">
@@ -193,11 +205,11 @@
           <span class="text-xs text-muted" id="scenario-a-desc">—</span>
         </div>
         <div class="space-y-2">
-          <div class="flex justify-between text-sm"><span class="text-muted">EMI</span><span class="font-semibold" id="scenario-a-emi">—</span></div>
+          <div class="flex justify-between text-sm"><span class="text-muted dyn-lbl-emi">EMI</span><span class="font-semibold" id="scenario-a-emi">—</span></div>
           <div class="flex justify-between text-sm"><span class="text-muted">Total Interest</span><span id="scenario-a-interest">—</span></div>
           <div class="flex justify-between text-sm"><span class="text-muted">Total Cost</span><span id="scenario-a-total">—</span></div>
           <div class="flex justify-between text-sm"><span class="text-muted">Payoff Date</span><span id="scenario-a-payoff">—</span></div>
-          <div class="flex justify-between text-sm"><span class="text-muted">EMI/Income</span><span id="scenario-a-afford">—</span></div>
+          <div class="flex justify-between text-sm"><span class="text-muted dyn-lbl-emi-income">EMI/Income</span><span id="scenario-a-afford">—</span></div>
         </div>
       </div>
     </div>
@@ -233,14 +245,14 @@
             <p class="text-xs font-medium text-muted uppercase tracking-wider mb-2">Without Prepayment</p>
             <div class="space-y-1.5 text-sm">
               <div class="flex justify-between"><span class="text-muted">Total Interest</span><span id="prepay-orig-interest" class="font-medium">Enter values above</span></div>
-              <div class="flex justify-between"><span class="text-muted">Tenure</span><span id="prepay-orig-tenure" class="font-medium">Enter values above</span></div>
+              <div class="flex justify-between"><span class="text-muted dyn-lbl-tenure">Tenure</span><span id="prepay-orig-tenure" class="font-medium">Enter values above</span></div>
             </div>
           </div>
           <div class="prepay-after">
             <p class="text-xs font-medium uppercase tracking-wider mb-2" style="color:var(--color-success);">With Prepayment</p>
             <div class="space-y-1.5 text-sm">
               <div class="flex justify-between"><span class="text-muted">Total Interest</span><span id="prepay-new-interest" class="font-bold">Enter values above</span></div>
-              <div class="flex justify-between"><span class="text-muted">Tenure</span><span id="prepay-new-tenure" class="font-bold">Enter values above</span></div>
+              <div class="flex justify-between"><span class="text-muted dyn-lbl-tenure">Tenure</span><span id="prepay-new-tenure" class="font-bold">Enter values above</span></div>
               <div class="flex justify-between pt-1 border-t border-default"><span class="text-muted">Interest Saved</span><span id="prepay-saved" class="scenario-diff-positive">Not available yet</span></div>
               <div class="flex justify-between"><span class="text-muted">Months Saved</span><span id="prepay-months" class="scenario-diff-positive">Not available yet</span></div>
             </div>
@@ -523,15 +535,16 @@
       $gaugeMark.style.left = markerPos + '%';
 
       $affordMsg.style.display = 'block';
+      const termStr = currency === 'USD' ? 'monthly payment' : 'EMI';
       if (ratio <= 30) {
         $affordMsg.className = 'p-3 rounded-lg text-sm mt-2 affordability-safe';
-        $affordMsg.innerHTML = `✅ <strong>Comfortable</strong> — Your EMI is ${ratio.toFixed(0)}% of your income. Banks approve up to 40%, but staying under 30% leaves room for emergencies.`;
+        $affordMsg.innerHTML = `✅ <strong>Comfortable</strong> — Your ${termStr} is ${ratio.toFixed(0)}% of your income. Banks approve up to 40%, but staying under 30% leaves room for emergencies.`;
       } else if (ratio <= 40) {
         $affordMsg.className = 'p-3 rounded-lg text-sm mt-2 affordability-stretched';
-        $affordMsg.innerHTML = `⚠️ <strong>Stretched</strong> — Your EMI is ${ratio.toFixed(0)}% of your income. Within most banks' limits, but less room for savings. Consider a longer tenure or smaller loan.`;
+        $affordMsg.innerHTML = `⚠️ <strong>Stretched</strong> — Your ${termStr} is ${ratio.toFixed(0)}% of your income. Within most banks' limits, but less room for savings. Consider a longer term or smaller loan.`;
       } else {
         $affordMsg.className = 'p-3 rounded-lg text-sm mt-2 affordability-risky';
-        $affordMsg.innerHTML = `🔴 <strong>High risk</strong> — Your EMI is ${ratio.toFixed(0)}% of your income. Most banks will reject this. Reduce the loan amount, extend tenure, or increase your down payment.`;
+        $affordMsg.innerHTML = `🔴 <strong>High risk</strong> — Your ${termStr} is ${ratio.toFixed(0)}% of your income. Most banks will reject this. Reduce the loan amount, extend term, or increase your down payment.`;
       }
     } else {
       $affordSec.style.display = 'none';
@@ -549,10 +562,10 @@
     if (scenarioB) updateScenarioB();
 
     // Amortization
-    if (amortVisible) renderAmortization(P, R, N);
+    renderAmortization(P, R, N);
 
     // Prepayment
-    if (prepayVisible) renderPrepayment(P, R, N);
+    renderPrepayment(P, R, N);
   }
 
   // ─── Scenario B ───
@@ -622,11 +635,12 @@
     const diff = aInterest - bResult.totalInterest;
     const $diff = document.getElementById('scenario-diff')!;
     if (Math.abs(diff) > 100) {
+      const termStr = currency === 'USD' ? 'monthly payment' : 'EMI';
       $diff.style.display = 'block';
       if (diff > 0) {
-        $diff.innerHTML = `<span class="scenario-diff-positive">Scenario B saves ${fmt(diff, currency)} in interest</span> vs. Scenario A, but EMI is ${fmt(bResult.emi - prevEmi, currency)} ${bResult.emi > prevEmi ? 'higher' : 'lower'}.`;
+        $diff.innerHTML = `<span class="scenario-diff-positive">Scenario B saves ${fmt(diff, currency)} in interest</span> vs. Scenario A, but ${termStr} is ${fmt(bResult.emi - prevEmi, currency)} ${bResult.emi > prevEmi ? 'higher' : 'lower'}.`;
       } else {
-        $diff.innerHTML = `<span class="scenario-diff-negative">Scenario B costs ${fmt(-diff, currency)} more in interest</span> vs. Scenario A, but EMI is ${fmt(prevEmi - bResult.emi, currency)} lower.`;
+        $diff.innerHTML = `<span class="scenario-diff-negative">Scenario B costs ${fmt(-diff, currency)} more in interest</span> vs. Scenario A, but ${termStr} is ${fmt(prevEmi - bResult.emi, currency)} lower.`;
       }
     }
   }
@@ -724,16 +738,39 @@
   $fee.addEventListener('input', debCalc);
   $dp.addEventListener('input', debCalc);
 
+  function updateTerminology(curr: string) {
+    const isUsd = curr === 'USD';
+    document.getElementById('lbl-home-loan')!.textContent = isUsd ? 'Mortgage' : 'Home Loan';
+    document.getElementById('lbl-car-loan')!.textContent = isUsd ? 'Auto Loan' : 'Car Loan';
+    document.getElementById('lbl-loan-tenure')!.textContent = isUsd ? 'Loan Term' : 'Loan Tenure';
+    document.getElementById('lbl-processing-fee')!.textContent = isUsd ? 'Origination Fee (%)' : 'Processing Fee (%)';
+    document.getElementById('lbl-monthly-emi')!.textContent = isUsd ? 'Your Monthly Payment' : 'Your Monthly EMI';
+    document.getElementById('lbl-emi-income')!.textContent = isUsd ? 'Payment / Income Ratio' : 'EMI / Income Ratio';
+    
+    document.getElementById('tenure-help')!.textContent = isUsd ? 'Longer term = lower monthly payment but more interest overall' : 'Longer tenure = lower EMI but more interest overall';
+    document.getElementById('income-help')!.textContent = isUsd ? 'Used to check if this monthly payment fits your budget. Not stored.' : 'Used to check if this EMI fits your budget. Not stored.';
+
+    document.querySelectorAll('.dyn-lbl-emi').forEach(el => el.textContent = isUsd ? 'Monthly Payment' : 'EMI');
+    document.querySelectorAll('.dyn-lbl-emi-income').forEach(el => el.textContent = isUsd ? 'Payment/Income' : 'EMI/Income');
+    document.querySelectorAll('.dyn-lbl-tenure').forEach(el => el.textContent = isUsd ? 'Term' : 'Tenure');
+
+    document.querySelectorAll('.inr-text').forEach(el => el.classList.toggle('hidden', isUsd));
+    document.querySelectorAll('.usd-text').forEach(el => el.classList.toggle('hidden', !isUsd));
+
+    const incomeInput = document.getElementById('income') as HTMLInputElement;
+    if (incomeInput) incomeInput.placeholder = isUsd ? 'e.g. 5,000' : 'e.g. 1,20,000';
+  }
+
   // Currency
   document.getElementById('btn-inr')!.addEventListener('click', () => {
     currency = 'INR'; $currSym.textContent = '₹';
     document.querySelectorAll('.dp-currency, .prepay-currency').forEach(el => el.textContent = '₹');
-    setToggle('btn-inr', 'btn-usd'); calculate();
+    setToggle('btn-inr', 'btn-usd'); updateTerminology('INR'); calculate();
   });
   document.getElementById('btn-usd')!.addEventListener('click', () => {
     currency = 'USD'; $currSym.textContent = '$';
     document.querySelectorAll('.dp-currency, .prepay-currency').forEach(el => el.textContent = '$');
-    setToggle('btn-usd', 'btn-inr'); calculate();
+    setToggle('btn-usd', 'btn-inr'); updateTerminology('USD'); calculate();
   });
 
   // Method

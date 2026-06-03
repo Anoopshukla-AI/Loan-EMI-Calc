@@ -14,7 +14,10 @@ const currentMonth = new Date().toLocaleString('en-US', { month: 'long' });
             <circle cx="16" cy="16" r="15" fill="#01696f"/>
             <text x="16" y="21" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="white">₹$</text>
           </svg>
-          <span class="font-bold text-lg" style="color: var(--color-text);">EMI Calc</span>
+          <span class="font-bold text-lg" style="color: var(--color-text);">
+            <span class="inr-text">EMI Calc</span>
+            <span class="usd-text hidden">Loan Calc</span>
+          </span>
         </a>
         <p class="text-sm text-muted mb-3 max-w-sm leading-relaxed">
           A privacy-first loan workspace. Calculate EMI, check affordability, and model prepayments entirely in your browser. Built independently to keep your financial data private.
@@ -54,7 +57,7 @@ const currentMonth = new Date().toLocaleString('en-US', { month: 'long' });
           &copy; {currentYear} EMI Calculator. All rights reserved. Built independently. Support helps keep this tool free and improve features.
         </p>
         <p class="text-xs text-muted m-0 max-w-2xl mx-auto md:mx-0 leading-relaxed">
-          <strong>Disclaimer:</strong> Calculations are illustrative only and follow standard reducing-balance methods. They may not account for lender-specific GST, processing fee variations, or floating-rate adjustments. Always verify the final figures with your lender.
+          <strong>Disclaimer:</strong> Calculations are for illustrative purposes and assume a fixed interest rate. Actual loan terms may vary based on lender-specific <span class="inr-text">GST, processing fees</span><span class="usd-text hidden">taxes, origination fees</span>, and credit adjustments. Always verify the final figures with your lender.
         </p>
       </div>
       

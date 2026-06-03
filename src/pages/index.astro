@@ -9,26 +9,34 @@ const faqJsonLd = {
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "How accurate is this calculator?",
+      "name": "How accurate is this loan calculator?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "It uses the standard reducing-balance EMI formula widely used by major lenders. Your result will closely match most banks, provided the principal, rate, and tenure match exactly."
+        "text": "It uses the standard reducing-balance amortization (EMI) formula widely used by major lenders worldwide. Your result will closely match most banks, provided the principal, interest rate, and loan term match exactly."
       }
     },
     {
       "@type": "Question",
-      "name": "Should I choose a shorter or longer tenure?",
+      "name": "What is an amortization schedule?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Shorter tenure = higher EMI, much less total interest. Longer tenure = easier monthly payments, but significantly more interest over time. Rule of thumb: keep your EMI under 30% of your take-home pay."
+        "text": "An amortization schedule is a complete table of periodic loan payments, showing the amount of principal and the amount of interest that comprise each payment until the loan is paid off at the end of its term."
       }
     },
     {
       "@type": "Question",
-      "name": "What's the real cost difference between reducing balance and flat rate?",
+      "name": "Should I choose a shorter or longer loan term?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "A flat rate of 10% is roughly equivalent to 17–18% reducing balance. If a lender quotes flat rate, compare it to a reducing balance offer — it will almost always be more expensive."
+        "text": "A shorter loan term results in a higher monthly payment, but much less total interest paid over the life of the loan. A longer term provides easier monthly payments, but significantly more total interest. A common rule of thumb is to keep your monthly payment (EMI) under 30% of your take-home pay."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between reducing balance and flat rate loans?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In a reducing balance loan, interest is charged only on the remaining principal each month. In a flat rate loan, interest is charged on the original loan amount for the full term. A flat rate of 10% is roughly equivalent to a 17–18% reducing balance rate, making flat rate loans significantly more expensive."
       }
     },
     {
@@ -36,15 +44,7 @@ const faqJsonLd = {
       "name": "Should I make prepayments on my loan?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Almost always yes for home loans. For personal and car loans, check your lender's prepayment penalty — it's often 2–5% of the outstanding amount."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Can I use this for loans outside India?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes. Switch to $ (USD) using the currency toggle. The math is identical — only the number format changes. This works for US mortgages, Australian home loans, or any amortizing loan worldwide."
+        "text": "Almost always yes for mortgages and home loans, provided there are no prepayment penalties. For personal and auto loans, check if your lender charges a prepayment penalty (often a percentage of the outstanding amount). Making extra payments reduces your principal faster, saving you significant interest."
       }
     }
   ]
@@ -67,10 +67,10 @@ const webAppJsonLd = {
 ---
 
 <Layout
-  title="EMI Calculator — Know Your EMI Before You Sign"
-  description="Calculate monthly payments, compare offers side-by-side, and check affordability for home, car, and personal loans. 100% private. Works in ₹ or $."
-  ogTitle="EMI Calculator — Know Your EMI Before You Sign"
-  ogDescription="Calculate monthly payments, compare offers side-by-side, and check affordability for home, car, and personal loans. 100% private. Works in ₹ or $."
+  title="Free Loan Payment & EMI Calculator — Know Before You Sign"
+  description="Free monthly payment calculator with amortization schedule. Compare offers and check affordability for mortgages, car loans, and personal loans in $ or ₹."
+  ogTitle="Free Loan Payment & EMI Calculator — Know Before You Sign"
+  ogDescription="Free monthly payment calculator with amortization schedule. Compare offers and check affordability for mortgages, car loans, and personal loans in $ or ₹."
   ogUrl="https://emicalculator.example.com"
 >
   <Fragment slot="head">
@@ -79,13 +79,12 @@ const webAppJsonLd = {
   </Fragment>
 
   <main class="max-w-5xl mx-auto px-4 py-8 sm:py-12">
-    <!-- Hero Section -->
     <div class="mb-10 text-center sm:text-left">
       <h1 class="text-4xl sm:text-5xl md:text-6xl mb-4" style="font-family: var(--font-display); color: var(--color-primary);">
-        Know your EMI before you sign the loan.
+        Free Loan Payment Calculator
       </h1>
       <p class="text-lg sm:text-xl text-muted max-w-3xl mb-3">
-        Calculate monthly payments, compare offers, and check affordability for home, car, and personal loans — in ₹ or $.
+        Calculate monthly payments, compare options, and view your amortization schedule for mortgages, auto loans, and personal loans. (Includes EMI calculator for ₹ users).
       </p>
       <p class="text-sm font-medium" style="color: var(--color-success);">
         🔒 100% private. No sign-up. Your numbers never leave your browser.
@@ -97,36 +96,40 @@ const webAppJsonLd = {
 
     <!-- Visual Explainer (Replaces SEO Wall) -->
     <article class="mt-20">
-      <h2 class="text-2xl sm:text-3xl mb-6" style="font-family: var(--font-display);">
-        How EMI calculation works
+      <h2 class="text-2xl sm:text-3xl mb-4" style="font-family: var(--font-display);">
+        <span class="inr-text">How is EMI calculated?</span>
+        <span class="usd-text hidden">How is your monthly payment calculated?</span>
       </h2>
+      <p class="text-lg text-muted mb-8 max-w-3xl leading-relaxed">
+        <strong>A loan payment calculator</strong> estimates your <span class="inr-text">EMI</span><span class="usd-text hidden">monthly payment</span>, total interest, and payoff timeline for a fixed-rate loan. The standard formula uses a <strong>reducing-balance</strong> method where each payment is split between paying down the principal and covering the interest.
+      </p>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div class="surface-card p-6">
           <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
             <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-light text-primary text-xs">1</span>
-            Reducing Balance
+            What is a Reducing Balance loan?
           </h3>
-          <p class="text-sm text-muted mb-4 font-medium italic">What most banks use</p>
+          <p class="text-sm text-muted mb-4 font-medium italic">The global standard for mortgages</p>
           <ul class="space-y-2 text-sm text-muted list-none pl-0">
             <li class="flex items-start gap-2"><span class="text-primary">•</span> Interest is charged on your remaining balance each month</li>
             <li class="flex items-start gap-2"><span class="text-primary">•</span> As you repay, the interest portion shrinks and principal grows</li>
             <li class="flex items-start gap-2"><span class="text-primary">•</span> Used by: major banks and financial institutions globally</li>
-            <li class="flex items-start gap-2"><span class="text-primary">•</span> Formula: <code class="bg-primary-light text-primary px-1.5 py-0.5 rounded ml-1 text-xs">EMI = [P × R × (1+R)<sup>N</sup>] / [(1+R)<sup>N</sup> − 1]</code></li>
+            <li class="flex items-start gap-2"><span class="text-primary">•</span> Formula: <code class="bg-primary-light text-primary px-1.5 py-0.5 rounded ml-1 text-xs"><span class="inr-text">EMI</span><span class="usd-text hidden">Monthly Payment</span> = [P × R × (1+R)<sup>N</sup>] / [(1+R)<sup>N</sup> − 1]</code></li>
           </ul>
         </div>
         
         <div class="surface-card p-6">
           <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
             <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary-light text-primary text-xs">2</span>
-            Flat Rate
+            What is a Flat Rate loan?
           </h3>
           <p class="text-sm text-muted mb-4 font-medium italic">Some car & personal loans</p>
           <ul class="space-y-2 text-sm text-muted list-none pl-0">
             <li class="flex items-start gap-2"><span class="text-amber">•</span> Interest is charged on the original loan amount for the full tenure</li>
             <li class="flex items-start gap-2"><span class="text-amber">•</span> Your interest stays the same every month</li>
             <li class="flex items-start gap-2"><span class="text-amber">•</span> Results in 1.7–1.9× higher effective interest vs. reducing balance</li>
-            <li class="flex items-start gap-2"><span class="text-amber">•</span> Used by: some NBFCs and auto financiers</li>
+            <li class="flex items-start gap-2"><span class="text-amber">•</span> Used by: <span class="inr-text">some NBFCs and auto financiers</span><span class="usd-text hidden">some personal lenders and auto financiers (Simple Interest)</span></li>
           </ul>
         </div>
       </div>
@@ -134,7 +137,10 @@ const webAppJsonLd = {
       <!-- Mini Comparison Table -->
       <div class="surface-card overflow-hidden">
         <div class="px-5 py-4 bg-primary-light border-b border-default">
-          <p class="font-medium text-sm m-0">Example: ₹10L loan at 10% for 5 years</p>
+          <p class="font-medium text-sm m-0">
+            <span class="inr-text">Example: ₹10L loan at 10% for 5 years</span>
+            <span class="usd-text hidden">Example: $300,000 mortgage at 7% for 30 years</span>
+          </p>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
@@ -147,19 +153,19 @@ const webAppJsonLd = {
             </thead>
             <tbody>
               <tr class="border-b border-default">
-                <td class="px-5 py-3 text-muted">Monthly EMI</td>
-                <td class="px-5 py-3 font-medium">₹21,247</td>
-                <td class="px-5 py-3 font-medium">₹25,000</td>
+                <td class="px-5 py-3 text-muted"><span class="inr-text">Monthly EMI</span><span class="usd-text hidden">Monthly Payment</span></td>
+                <td class="px-5 py-3 font-medium"><span class="inr-text">₹21,247</span><span class="usd-text hidden">$1,996</span></td>
+                <td class="px-5 py-3 font-medium"><span class="inr-text">₹25,000</span><span class="usd-text hidden">$2,583</span></td>
               </tr>
               <tr class="border-b border-default">
                 <td class="px-5 py-3 text-muted">Total Interest</td>
-                <td class="px-5 py-3 font-medium">₹2,74,823</td>
-                <td class="px-5 py-3 font-medium text-amber">₹5,00,000</td>
+                <td class="px-5 py-3 font-medium"><span class="inr-text">₹2,74,823</span><span class="usd-text hidden">$418,527</span></td>
+                <td class="px-5 py-3 font-medium text-amber"><span class="inr-text">₹5,00,000</span><span class="usd-text hidden">$630,000</span></td>
               </tr>
               <tr>
                 <td class="px-5 py-3 text-muted">Effective Rate</td>
-                <td class="px-5 py-3 font-medium">10.00%</td>
-                <td class="px-5 py-3 font-medium text-amber">~17.3%</td>
+                <td class="px-5 py-3 font-medium"><span class="inr-text">10.00%</span><span class="usd-text hidden">7.00%</span></td>
+                <td class="px-5 py-3 font-medium text-amber"><span class="inr-text">~17.3%</span><span class="usd-text hidden">~13.2%</span></td>
               </tr>
             </tbody>
           </table>

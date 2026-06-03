@@ -10,24 +10,24 @@ interface FaqItem {
 
 const faqs: FaqItem[] = [
   {
-    question: "How accurate is this calculator?",
-    answer: "It uses the standard reducing-balance EMI formula widely used by major lenders. Your result will closely match most banks, provided the principal, rate, and tenure match exactly. Note: Calculations are illustrative and do not account for bank-specific processing fees, GST, or floating-rate adjustments."
+    question: "How accurate is this loan calculator?",
+    answer: "It uses the standard reducing-balance <span class='inr-text'>EMI</span><span class='usd-text hidden'>amortization</span> formula widely used by major lenders worldwide. Your result will closely match most banks, provided the principal, interest rate, and <span class='inr-text'>tenure</span><span class='usd-text hidden'>loan term</span> match exactly. <br><br><em>Note: Calculations are illustrative and do not account for floating-rate adjustments or <span class='inr-text'>GST/processing fees</span><span class='usd-text hidden'>taxes/origination fees</span>.</em>"
   },
   {
-    question: "Should I choose a shorter or longer tenure?",
-    answer: "Shorter tenure = higher EMI, much less total interest. Longer tenure = easier monthly payments, but significantly more interest over time. Rule of thumb: keep your EMI under 30% of your take-home pay, then pick the shortest tenure you can comfortably afford."
+    question: "What is an amortization schedule?",
+    answer: "<strong>An amortization schedule</strong> is a complete table of periodic loan payments, showing the amount of principal and the amount of interest that comprise each payment until the loan is paid off at the end of its term."
   },
   {
-    question: "What's the real cost difference between reducing balance and flat rate?",
-    answer: "A flat rate of 10% is roughly equivalent to 17–18% reducing balance. Always ask your lender which method they use. If they quote flat rate, compare it to a reducing balance offer — it will almost always be more expensive."
+    question: "Should I choose a shorter or longer <span class='inr-text'>tenure</span><span class='usd-text hidden'>loan term</span>?",
+    answer: "A shorter <span class='inr-text'>tenure</span><span class='usd-text hidden'>term</span> results in a higher <span class='inr-text'>EMI</span><span class='usd-text hidden'>monthly payment</span>, but much less total interest paid over the life of the loan. A longer <span class='inr-text'>tenure</span><span class='usd-text hidden'>term</span> provides easier monthly payments, but significantly more total interest. A common rule of thumb is to keep your <span class='inr-text'>EMI</span><span class='usd-text hidden'>monthly payment</span> under 30% of your take-home pay."
+  },
+  {
+    question: "What is the difference between reducing balance and flat rate loans?",
+    answer: "In a <strong>reducing balance loan</strong>, interest is charged only on the remaining principal each month. In a <strong>flat rate loan</strong>, interest is charged on the original loan amount for the full term. A flat rate of 10% is roughly equivalent to a 17–18% reducing balance rate, making flat rate loans significantly more expensive."
   },
   {
     question: "Should I make prepayments on my loan?",
-    answer: "Almost always yes for home loans (most banks allow penalty-free prepayments after 1 year under RBI rules). For personal and car loans, check your lender's prepayment penalty — it's often 2–5% of the outstanding amount. Use the simulator above to see exact savings."
-  },
-  {
-    question: "Can I use this for loans outside India?",
-    answer: "Yes. Switch to $ (USD) using the currency toggle. The math is identical — only the number format changes. This works for US mortgages, Australian home loans, or any amortizing loan worldwide."
+    answer: "<span class='inr-text'>Almost always yes for home loans (most banks allow penalty-free prepayments after 1 year under RBI rules). For personal and car loans, check your lender's prepayment penalty — it's often 2–5% of the outstanding amount.</span><span class='usd-text hidden'>Almost always yes for mortgages and home loans, provided there are no prepayment penalties. For personal and auto loans, check if your lender charges a prepayment penalty.</span> Making extra payments reduces your principal faster, saving you significant interest."
   }
 ];
 ---
@@ -48,7 +48,7 @@ const faqs: FaqItem[] = [
           aria-expanded="false"
           aria-controls={`faq-answer-${index}`}
         >
-          <span>{faq.question}</span>
+          <span set:html={faq.question}></span>
           <svg class="faq-icon shrink-0" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s;">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
@@ -58,7 +58,7 @@ const faqs: FaqItem[] = [
           class="faq-answer px-4"
           role="region"
         >
-          <p class="text-sm leading-relaxed text-muted pb-4 m-0">{faq.answer}</p>
+          <p class="text-sm leading-relaxed text-muted pb-4 m-0" set:html={faq.answer}></p>
         </div>
       </div>
     ))}

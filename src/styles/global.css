@@ -6,7 +6,7 @@
 
 @theme {
   /* --- Color Palette (Light Mode) --- */
-  --color-text: #1f2937; /* softer near-black */
+  --color-text: #111827; /* crisp near-black */
   --color-text-muted: #6b7280; /* muted gray */
     
   --color-primary: #01696f; /* deep teal */
@@ -37,9 +37,9 @@
   --font-body: var(--font-sans);
 
   /* --- Shadows --- */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
-  --shadow-elevated: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025);
+  --shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
 
   /* --- Spacing --- */
   --radius-sm: 6px;
@@ -124,7 +124,7 @@ html[data-theme="dark"] textarea {
 .surface-card {
   background-color: var(--color-surface);
   border-radius: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.025);
+  box-shadow: var(--shadow-card);
   border: 1px solid var(--color-border);
 }
 
