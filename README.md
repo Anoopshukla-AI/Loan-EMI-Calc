@@ -1,5 +1,6 @@
 # EMI Calculator
 <!-- pr-5 -->
+<!-- pr-6 -->
 
 A fast, SEO-optimized EMI (Equated Monthly Installment) calculator built with **Astro** and **Tailwind CSS v4**. Calculates monthly EMI, total interest payable, and generates full amortization schedules for home, car, and personal loans. Supports both ₹ (INR) and $ (USD).
 
