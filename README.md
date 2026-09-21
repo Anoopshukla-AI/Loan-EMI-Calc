@@ -1,6 +1,10 @@
 # EMI Calculator
-<!-- pr-5 -->
-<!-- pr-6 -->
+
+[![Tech Stack](https://img.shields.io/badge/Tech_Stack-Production_Ready-3776AB?style=flat-square)](https://github.com/Anoopshukla-AI/Loan-EMI-Calc)
+[![License](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](LICENSE)
+
+
+
 
 A fast, SEO-optimized EMI (Equated Monthly Installment) calculator built with **Astro** and **Tailwind CSS v4**. Calculates monthly EMI, total interest payable, and generates full amortization schedules for home, car, and personal loans. Supports both ₹ (INR) and $ (USD).
 
@@ -78,7 +82,7 @@ site: 'https://yourdomain.com',
 In `src/layouts/Layout.astro`, uncomment and update the GA4 script:
 
 ```html
-<!-- Replace G-XXXXXXXXXX with your Measurement ID -->
+
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 ```
 
@@ -87,7 +91,7 @@ In `src/layouts/Layout.astro`, uncomment and update the GA4 script:
 In `src/layouts/Layout.astro`, uncomment and update the AdSense script:
 
 ```html
-<!-- Replace ca-pub-XXXXXXXXXXXXXXXXX with your publisher ID -->
+
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXXX"></script>
 ```
 
